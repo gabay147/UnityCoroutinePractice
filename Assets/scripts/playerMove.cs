@@ -15,6 +15,8 @@ public class playerMove : MonoBehaviour {
 	private Vector2 lastDir;
 	private bool isMoving;
 	private bool isAttacking;
+    private Vector2 movement;
+    private bool wasHitThisFrame;
 
 	public float speed;
 
@@ -55,17 +57,29 @@ public class playerMove : MonoBehaviour {
 
 		deltaForce = new Vector2 (h, v);
 
-		CalculateMovement (deltaForce * speed);
+        movement = deltaForce * speed;
+		CalculateMovement (movement);
 	}
 		
 
 	void CalculateMovement(Vector2 force) {
-		rb.velocity = Vector2.zero;
+        if (!wasHitThisFrame)
+        {
+            rb.velocity = Vector2.zero;
 
-			rb.AddForce (force, ForceMode2D.Impulse);
+            rb.AddForce(force, ForceMode2D.Impulse);
+
+            SendAnimInfo();
+        }
 		
-		SendAnimInfo();
 	}
+
+    void takeDamage(Vector2 dir)
+    {
+        Debug.Log("took damage from source");
+        wasHitThisFrame = true;
+        StartCoroutine(knockback(-dir));
+    }
 
 	void SendAnimInfo() {
 		anim.SetFloat ("xSpeed", rb.velocity.x);
@@ -76,4 +90,16 @@ public class playerMove : MonoBehaviour {
 		anim.SetBool ("isMoving", isMoving);
 		anim.SetBool ("isAttacking", isAttacking);
 	}
+
+    IEnumerator knockback(Vector2 dir)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            Debug.Log(i);
+            rb.AddForce(dir * speed, ForceMode2D.Impulse);
+            yield return null;
+        }
+        wasHitThisFrame = false;
+        
+    }
 }

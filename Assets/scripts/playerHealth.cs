@@ -17,6 +17,8 @@ public class playerHealth : MonoBehaviour {
 
 	void OnCollisionEnter2D(Collision2D collision) {
 		if (collision.gameObject.tag == "poisonHazard") {
+            Vector2 direction = collision.gameObject.transform.position - gameObject.transform.position;
+            gameObject.SendMessage("takeDamage", direction);
 			StartCoroutine (poisonDmg (10));
 		}
 	}
